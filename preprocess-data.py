@@ -39,3 +39,11 @@ def setup_paths(data_dir):
 
 
 # ===== preprocess data =====
+
+
+
+# ===== create custom dataset =====
+class PlantDataset(Dataset):
+    """
+    reads image filenames and labels
+    """
