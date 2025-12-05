@@ -1,33 +1,51 @@
 # ===== library imports =====
-from tqdm import tdqm
-from PIL import Image
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from torchvision import datasets, models, transforms
-from sklearn.model_selection import train_test_split
+from torchvision import models
 
 # ===== code imports =====
 from preprocess_data import preprocess_data
 
+# ===== setup device =====
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"using device: {device}")
+
 
 # ===== setup model function =====
-def setup_model():
+def setup_model(num_classes):
+    """
+    load model and replace final FC layer to match number of 
+    classes in dataset.
+    """
+
     #load resnet18 model
     model = models.resnet18(pretrained=True)
 
     #replace final connected later with 2 outputs
     num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 2)
+    model.fc = nn.Linear(num_ftrs, num_classes)
+
+    model = model.to(device)
+    return model
 
 
 # ===== train data function =====
 def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loader):
+    """
+    training loop with validation at each epoch
+    
+    :param model: Description
+    :param epochs: Description
+    :param optimizer: Description
+    :param loss_fn: Description
+    :param train_loader: Description
+    :param validation_loader: Description
+    """
+
     for epoch, in range(epochs):
         model.train()
-        train_loss_total, train_correct, train_total = 0, 0, 0
+        train_loss_total, train_correct, train_total = 0.0, 0, 0
 
         for imgs, labels in train_loader:
             imgs, labels = imgs.to(device), labels.to(device)
@@ -43,13 +61,14 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
             train_correct += preds.eq(labels).sum().item()
             train_total += labels.size(0)
 
-        
         #calculate accuracy and average loss
         avg_train_loss = train_loss_total / train_total
         train_accuracy = train_correct / train_total
 
+        #validation
         model.eval()
         val_loss_total, val_correct, val_total = 0, 0, 0
+
         with torch.no_grad():
             for imgs, labels in validation_loader:
                 imgs, labels = imgs.to(device), labels.to(device)
@@ -74,26 +93,38 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
 
 # ===== MAIN FUNCTION =====
 def main():
-    #preprocess data
-    data_dir = "..\datasets\plant_leave_diseases_dataset_without_augmentation"
+    #set data directory path
+    data_dir = r"datasets\plant_leave_diseases_dataset_without_augmentation"
 
-    #create datasets
-    
-
-    #create dataloader
-
-    #setup model
-
-    #build model
-
-    #definitions
+    #hyperparameters
     batch_size = 64
     learning_rate = 0.001
     epochs = 10
+
+    #preprocess data
+    train_loader, val_loader, test_loader, le, num_classes = preprocess_data(
+        data_dir=data_dir,
+        img_size=224,
+        batch_size=batch_size,
+        subset_size=200,
+    )
+
+    #setup model
+    model = setup_model(num_classes=num_classes)
+
+    #loss and optimizer definitions
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     #train data
+    train_data(
+        model=model,
+        epochs=epochs,
+        optimizer=optimizer,
+        loss_fn=loss_fn,
+        train_loader=train_loader,
+        validation_loader=val_loader,
+    )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 # ===== import libraries =====
 import os
-from tqdm import tdqm
 from PIL import Image
 
 import torch
@@ -110,7 +109,7 @@ def transform_data(img_size=224):
 
 
 # ===== preprocess data function =====
-def preprocess_data(data_dir, img_size=224, batch_size=64, val_split=0.15, test_split=0.15):
+def preprocess_data(data_dir, img_size=224, batch_size=64, subset_size: int | None = None, val_split=0.15, test_split=0.15):
     """
     preprocess_data pipeline:
         1. collect image paths and string labels
@@ -125,6 +124,13 @@ def preprocess_data(data_dir, img_size=224, batch_size=64, val_split=0.15, test_
     #load in filepaths and labels
     print("loading file paths and labels...")
     filepaths, labels = setup_paths(data_dir)
+
+
+    #limit dataset size for quick tests
+    if subset_size is not None:
+        filepaths = filepaths[:subset_size]
+        labels_str = labels_str[:subset_size]
+        print(f"running in SUBSET MODE: {subset_size} images")
 
     #encode string labels to ints
     print("encoding labels...")
