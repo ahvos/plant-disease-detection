@@ -9,22 +9,8 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, models, transforms
 from sklearn.model_selection import train_test_split
 
-
-# ===== data transforms and loaders function =====
-def transform_data():
-    train_transform = transforms.Compose([
-        transforms.Resize(224, 224),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(10),
-        transforms.ToTensor()
-    ])
-
-    validation_transform = transforms.Compose([
-        transforms.Resize(224, 224), 
-        transforms.ToTensor()
-    ])
-
-    return train_transform, validation_transform
+# ===== code imports =====
+from preprocess_data import preprocess_data
 
 
 # ===== setup model function =====
@@ -89,8 +75,10 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
 # ===== MAIN FUNCTION =====
 def main():
     #preprocess data
+    data_dir = "..\datasets\plant_leave_diseases_dataset_without_augmentation"
 
     #create datasets
+    
 
     #create dataloader
 
