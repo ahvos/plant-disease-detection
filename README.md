@@ -13,12 +13,6 @@
 │   │       ├── image(1).jpg
 │   │       ├── ...
 │   │   └── ...
-│   │
-│   └── TEST
-│       └── test_set/
-│           └── test_set/
-│               ├── TEST.jpg
-│               ├── ...
 ```
 
 ---
@@ -37,21 +31,10 @@ requirements.txt
 
 ---
 ## Training Dataset
-Training Set: https://data.mendeley.com/datasets/tywbtsjrjv/1
-
-Test Set:
+Data Set: https://data.mendeley.com/datasets/tywbtsjrjv/1
 
 
 ---
 ## How to Build and Run Program
 1. Install libaries by running ``` pip install -r requirements.txt```
-2. Run the program clicking "Run All"
-
-
----
-
-## Submission File
-Notebook will generate:
-```
-submission.csv
-```
+2. Run the program running ``` python model.py ```

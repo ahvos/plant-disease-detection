@@ -106,7 +106,7 @@ def main():
         data_dir=data_dir,
         img_size=224,
         batch_size=batch_size,
-        subset_size=200,
+        subset_size=500,
     )
 
     #setup model
