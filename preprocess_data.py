@@ -1,5 +1,7 @@
 # ===== import libraries =====
 import os
+import numpy as np
+from collections import Counter
 from PIL import Image
 
 import torch
@@ -65,12 +67,16 @@ class PlantDataset(Dataset):
     def __getitem__(self, index):
         img_path = self.filepaths[index]
         label = self.labels[index]
+        label = int(label)
 
         #load image
         img = Image.open(img_path).convert("RGB")
 
         if self.transform:
             img = self.transform(img)
+
+        #convert label to tensor
+        label = torch.tensor(label, dtype=torch.long)
 
         return img, label
 
@@ -130,15 +136,26 @@ def preprocess_data(data_dir, img_size=224, batch_size=64, subset_size: int | No
     #limit dataset size for quick tests
     if subset_size is not None:
         subset_size = min(subset_size, len(filepaths))
-        filepaths = filepaths[:subset_size]
-        labels = labels[:subset_size]
+        indexes = np.random.choice(len(filepaths), size=subset_size, replace=False)
+        filepaths = [filepaths[i] for i in indexes]
+        labels = [labels[i] for i in indexes]
         print(f"running in SUBSET MODE: {subset_size} images")
 
     #encode string labels to ints
     print("encoding labels...")
     le = LabelEncoder()
-    labels_encoded = le.fit_transform(labels)
+    labels = le.fit_transform(labels)
     num_classes = len(le.classes_)
+    print(f"num classes: {num_classes}")
+    print(f"classes: {list(le.classes_)}")
+
+    counts = Counter(labels)
+    print("label distribution in subset:", Counter(labels))
+    min_count = min(counts.values())
+    use_stratify = min_count >= 2
+
+    if not use_stratify:
+        print("disabling stratify...")
 
     #total validation and test percentage
     val_test_total = val_split + test_split
@@ -149,7 +166,7 @@ def preprocess_data(data_dir, img_size=224, batch_size=64, subset_size: int | No
         filepaths,
         labels,
         test_size=val_test_total,
-        stratify=labels,
+        stratify=labels if use_stratify else None,
         random_state=13
     )
 
@@ -161,7 +178,7 @@ def preprocess_data(data_dir, img_size=224, batch_size=64, subset_size: int | No
         X_temp,
         y_temp,
         test_size=(1-val_ratio_total),
-        stratify=y_temp,
+        stratify=y_temp if use_stratify else None,
         random_state=13,
     )
 
@@ -206,18 +223,3 @@ def preprocess_data(data_dir, img_size=224, batch_size=64, subset_size: int | No
 
     print("DATA PREPROCESSING COMPLETE.")
     return train_loader, val_loader, test_loader, le, num_classes
-
-if __name__ == "__main__":
-    # change this to your PlantVillage root folder
-    DATA_DIR = "path/to/PlantVillage"
-
-    train_loader, val_loader, test_loader, le, num_classes = preprocess_data(
-        data_dir=DATA_DIR,
-        img_size=224,
-        batch_size=32,
-    )
-
-    # Peek at one batch
-    images, labels = next(iter(train_loader))
-    print("Batch image tensor shape:", images.shape)
-    print("Batch labels shape:", labels.shape)
