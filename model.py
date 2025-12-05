@@ -9,8 +9,6 @@ from preprocess_data import preprocess_data
 
 # ===== setup device =====
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"using device: {device}")
-
 
 # ===== setup model function =====
 def setup_model(num_classes):
@@ -43,7 +41,7 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
     :param validation_loader: Description
     """
 
-    for epoch, in range(epochs):
+    for epoch in range(epochs):
         model.train()
         train_loss_total, train_correct, train_total = 0.0, 0, 0
 
@@ -93,6 +91,8 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
 
 # ===== MAIN FUNCTION =====
 def main():
+    print(f"using device: {device}")
+
     #set data directory path
     data_dir = r"datasets\plant_leave_diseases_dataset_without_augmentation"
 
@@ -117,6 +117,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     #train data
+    print("training data...")
     train_data(
         model=model,
         epochs=epochs,

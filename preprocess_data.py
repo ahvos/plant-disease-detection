@@ -39,7 +39,7 @@ def setup_paths(data_dir):
             fpath = os.path.join(folder_path, file)
             
             #ensure file is correct image type
-            if fpath.lower().endswith((",jpg", ".jpeg", ".png")):
+            if fpath.lower().endswith((".jpg", ".jpeg", ".png")):
                 filepaths.append(fpath)
                 labels.append(folder)
 
@@ -63,7 +63,7 @@ class PlantDataset(Dataset):
         return len(self.filepaths)
     
     def __getitem__(self, index):
-        img_path = self.filepaths(index)
+        img_path = self.filepaths[index]
         label = self.labels[index]
 
         #load image
@@ -84,7 +84,7 @@ def transform_data(img_size=224):
     :param img_size: set size of image
     """
     train_transform = transforms.Compose([
-        transforms.Resize(img_size, img_size),
+        transforms.Resize((img_size, img_size)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
         transforms.RandomRotation(15),
@@ -96,7 +96,7 @@ def transform_data(img_size=224):
     ])
 
     validation_transform = transforms.Compose([
-        transforms.Resize(img_size, img_size), 
+        transforms.Resize((img_size, img_size)), 
         transforms.ToTensor(),
         transforms.Normalize(
             mean=[0.485, 0.456, 0.406],
@@ -124,12 +124,14 @@ def preprocess_data(data_dir, img_size=224, batch_size=64, subset_size: int | No
     #load in filepaths and labels
     print("loading file paths and labels...")
     filepaths, labels = setup_paths(data_dir)
+    print(f"total images found: {len(filepaths)}")
 
 
     #limit dataset size for quick tests
     if subset_size is not None:
+        subset_size = min(subset_size, len(filepaths))
         filepaths = filepaths[:subset_size]
-        labels_str = labels_str[:subset_size]
+        labels = labels[:subset_size]
         print(f"running in SUBSET MODE: {subset_size} images")
 
     #encode string labels to ints
