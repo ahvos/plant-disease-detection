@@ -172,13 +172,21 @@ def preprocess_data(data_dir, img_size=224, batch_size=64, subset_size: int | No
 
     #split validation and test dataset
     val_ratio_total = val_split / (val_split + test_split)
+
+    #re-check stratify on y_temp only
+    counts_temp = Counter(y_temp)
+    min_count_temp = min(counts_temp.values())
+    use_stratify_temp = min_count_temp >= 2
+
+    if not use_stratify_temp:
+        print("disabling stratify...")
     
     print("splitting validation and test dataset...")
     X_val, X_test, y_val, y_test = train_test_split(
         X_temp,
         y_temp,
         test_size=(1-val_ratio_total),
-        stratify=y_temp if use_stratify else None,
+        stratify=y_temp if use_stratify_temp else None,
         random_state=13,
     )
 
