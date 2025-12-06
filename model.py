@@ -99,7 +99,7 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
             f"val loss: {avg_val_loss:.4f} | "
             f"val acc: {val_accuracy:.4f}")
         
-        return train_losses, val_losses, train_accuracies, val_accuracies
+    return train_losses, val_losses, train_accuracies, val_accuracies
 
 
 
