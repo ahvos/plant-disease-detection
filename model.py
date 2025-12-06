@@ -103,6 +103,32 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
 
 
 
+# ===== testing set evaluation function =====
+def evaluate_on_test(model, test_loader, loss_fn):
+    model.eval()
+    test_loss_total, test_correct, test_total = 0.0, 0, 0
+
+    with torch.no_grad():
+        for imgs, labels in test_loader:
+            imgs, labels = imgs.to(device), labels.to(device)
+
+            outputs = model(imgs)
+            loss = loss_fn(outputs, labels)
+
+            test_loss_total += loss.item() * imgs.size(0)
+            _, preds = outputs.max(1)
+            test_correct += preds.eq(labels).sum().item()
+            test_total += labels.size(0)
+
+    avg_test_loss = test_loss_total / test_total
+    test_accuracy = test_correct / test_total
+
+    print(f"\n[TESTING SET] loss: {avg_test_loss:.4f} | acc: {test_accuracy:.4f}")
+    return avg_test_loss, test_accuracy
+
+
+
+
 
 # ===== MAIN FUNCTION =====
 def main():
@@ -114,7 +140,7 @@ def main():
     #hyperparameters
     batch_size = 64
     learning_rate = 0.001
-    epochs = 10
+    epochs = 5
 
     #preprocess data
     train_loader, val_loader, test_loader, le, num_classes = preprocess_data(
@@ -165,6 +191,11 @@ def main():
     plt.legend()
     plt.grid(True)
     plt.show()
+
+
+    #evaluate on test set (used after final settings chosen)
+    #print("evaluating on test set...")
+    #evaluate_on_test(model, test_loader, loss_fn)
 
 
 if __name__ == "__main__":
