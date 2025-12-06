@@ -15,8 +15,6 @@ from sklearn.preprocessing import LabelEncoder
 def setup_paths(data_dir):
     """
     walks through each class folder and collect the image paths and labels.
-    
-    :param data_dir: Description 
     """
     #create filepath and labels list
     filepaths = []
@@ -86,8 +84,6 @@ class PlantDataset(Dataset):
 def transform_data(img_size=224):
     """
     returns train and validation/test transfroms.
-
-    :param img_size: set size of image
     """
     train_transform = transforms.Compose([
         transforms.Resize((img_size, img_size)),

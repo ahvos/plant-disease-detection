@@ -14,8 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # ===== setup model function =====
 def setup_model(num_classes):
     """
-    load model and replace final FC layer to match number of 
-    classes in dataset.
+    load model and replace final FC layer to match number of classes in dataset.
     """
 
     #load resnet18 model
@@ -33,13 +32,6 @@ def setup_model(num_classes):
 def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loader):
     """
     training loop with validation at each epoch
-    
-    :param model: Description
-    :param epochs: Description
-    :param optimizer: Description
-    :param loss_fn: Description
-    :param train_loader: Description
-    :param validation_loader: Description
     """
 
     train_losses = []
@@ -105,6 +97,9 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
 
 # ===== testing set evaluation function =====
 def evaluate_on_test(model, test_loader, loss_fn):
+    """
+    evaluate test data
+    """
     model.eval()
     test_loss_total, test_correct, test_total = 0.0, 0, 0
 
@@ -147,7 +142,7 @@ def main():
         data_dir=data_dir,
         img_size=224,
         batch_size=batch_size,
-        subset_size=1000,
+        subset_size=5000,
     )
 
     #setup model
