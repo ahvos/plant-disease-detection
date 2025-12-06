@@ -194,8 +194,8 @@ def main():
 
 
     #evaluate on test set (used after final settings chosen)
-    #print("evaluating on test set...")
-    #evaluate_on_test(model, test_loader, loss_fn)
+    print("evaluating on test set...")
+    evaluate_on_test(model, test_loader, loss_fn)
 
 
 if __name__ == "__main__":
