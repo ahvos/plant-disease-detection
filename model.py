@@ -139,8 +139,8 @@ def main():
 
     #hyperparameters
     batch_size = 64
-    learning_rate = 0.001
-    epochs = 5
+    learning_rate = 0.0001
+    epochs = 25
 
     #preprocess data
     train_loader, val_loader, test_loader, le, num_classes = preprocess_data(
