@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models
+import matplotlib.pyplot as plt
 
 # ===== code imports =====
 from preprocess_data import preprocess_data
@@ -40,6 +41,11 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
     :param train_loader: Description
     :param validation_loader: Description
     """
+
+    train_losses = []
+    val_losses = []
+    train_accuracies = []
+    val_accuracies = []
 
     for epoch in range(epochs):
         model.train()
@@ -80,12 +86,21 @@ def train_data(model, epochs, optimizer, loss_fn, train_loader, validation_loade
         avg_val_loss = val_loss_total / val_total
         val_accuracy = val_correct / val_total
 
+        #save metrics
+        train_losses.append(avg_train_loss)
+        val_losses.append(avg_val_loss)
+        train_accuracies.append(train_accuracy)
+        val_accuracies.append(val_accuracy)
+
         #print epoch progress
         print(f"epoch [{epoch+1}/{epochs}] | "
             f"train loss: {avg_train_loss:.4f} | "
             f"train acc: {train_accuracy:.4f} | "
             f"val loss: {avg_val_loss:.4f} | "
             f"val acc: {val_accuracy:.4f}")
+        
+        return train_losses, val_losses, train_accuracies, val_accuracies
+
 
 
 
@@ -106,7 +121,7 @@ def main():
         data_dir=data_dir,
         img_size=224,
         batch_size=batch_size,
-        subset_size=500,
+        subset_size=1000,
     )
 
     #setup model
@@ -118,7 +133,7 @@ def main():
 
     #train data
     print("training data...")
-    train_data(
+    train_losses, val_losses, train_acc, val_acc = train_data(
         model=model,
         epochs=epochs,
         optimizer=optimizer,
@@ -126,6 +141,30 @@ def main():
         train_loader=train_loader,
         validation_loader=val_loader,
     )
+
+    epochs_range = range(1, epochs + 1)
+
+    # plot loss curve
+    plt.figure(figsize=(10, 5))
+    plt.plot(epochs_range, train_losses, label="Train Loss", marker='o')
+    plt.plot(epochs_range, val_losses, label="Val Loss", marker='o')
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training & Validation Loss Curve")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    # plot accuracy curve
+    plt.figure(figsize=(10, 5))
+    plt.plot(epochs_range, train_acc, label="Train Accuracy", marker='o')
+    plt.plot(epochs_range, val_acc, label="Val Accuracy", marker='o')
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.title("Training & Validation Accuracy Curve")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 
 if __name__ == "__main__":
